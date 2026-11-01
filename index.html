@@ -495,18 +495,22 @@
     "image": "https://image.kkday.com/v2/image/get/w_1900%2Cc_fit/s1.kkday.com/product_scm_21042/20260522063919_gWhPw/png",
     "video": "",
     "desc": "廈門鐘鼓索道是廈門島內最具人氣的空中觀景地標，也是市區唯一的觀光高空纜車。它橫跨萬石山，全長約 1,000 公尺，最高處離地達 150 公尺。索道採用極具刺激感的無遮擋雙人開放式吊廂設計，乘客可以 360° 無死角地俯瞰廈門的「山、海、城」全景。\n搭乘纜車時，腳下是鬱鬱蔥蔥的廈門園林植物園，遠處則能飽覽鼓浪嶼、世茂雙子塔以及廈門海景，天氣晴朗時甚至能遠眺金門列島。索道地理位置優越，售票處緊鄰植物園西門，周邊還能順遊南普陀寺、沙坡尾與廈門大學等經典景點。\n🚠 核心旅遊資訊\n• 詳細地址： 中國福建省廈門市思明區虎園路 25-110 號（萬石植物園西側）。\n• 營業時間： 08:30 - 17:00（末班車為 17:00，建議最遲在 16:30 前完成預訂或入場）。\n• 航程時間： 單程約 20 分鐘，來回總計約 40 分鐘。\n• 門票價格： 成人來回票 80 元人民幣，兒童來回票 40 元人民幣。\n• 購票攻略：\n\t• 線上平台（如美團、攜程、同程、飛豬、KKday、Trip.com）於每日凌晨 00:00 更新車票庫存，最多可提前購買 10 天內的車票。\n\t• 旺季及假日時現場排隊人潮極多，強烈建議提早線上預約並依購買的場次時間前往現場取票。\n💡 內行人的實用貼士\n1. 不需購買植物園門票： 索道起點在植物園外側，如果你只想單純體驗纜車，不需要額外購買植物園門票。\n2. 全線原路來回： 雖然索道串聯了植物園與南普陀寺的五老峰，但目前營運基本要求原路來回，意即必須坐回起點虎園路出站。\n3. 夕陽黃金時刻： 推薦選擇下午 15:30 - 16:30 的場次搭乘，回程時正好可以在纜車上欣賞落日餘暉染紅廈門海景的絕美畫面。\n4. 乘車安全限制： 由於吊廂為半開放雙人座，出於安全考量，高血壓、心臟病患者、恐高症者 以及 70 歲以上長者謝絕乘坐。"
+ "order": 19
   }
 ];
 
     // Safe LocalStorage Wrapper (Prevents frame crash if restricted)
-    function getStoredSpots() {
-      try {
-        const stored = localStorage.getItem('tw_travel_spots');
-        return stored ? JSON.parse(stored) : defaultSpots;
-      } catch (e) {
-        return defaultSpots;
-      }
-    }
+ function getStoredSpots() {
+  let list = defaultSpots;
+  try {
+    const stored = localStorage.getItem('tw_travel_spots');
+    if (stored) list = JSON.parse(stored);
+  } catch (e) {
+    list = defaultSpots;
+  }
+
+  return list.sort((a, b) => (a.order || 999) - (b.order || 999));
+}
 
     function setStoredSpots(data) {
       try {
