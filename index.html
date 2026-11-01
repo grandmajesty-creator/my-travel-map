@@ -839,7 +839,7 @@
       }
     }
 
-    function handleSaveSpot(event) {
+ function handleSaveSpot(event) {
   event.preventDefault();
 
   const spotId = document.getElementById('form-spot-id').value;
@@ -849,18 +849,21 @@
   const image = document.getElementById('form-image').value;
   const video = document.getElementById('form-video').value;
   const desc = document.getElementById('form-desc').value;
-
+  
+  
   const orderInput = document.getElementById('form-order');
   const order = orderInput && orderInput.value ? parseInt(orderInput.value, 10) : 999;
 
   if (spotId) {
     const idx = spots.findIndex(s => s.id === spotId);
+  
     if (idx !== -1) spots[idx] = { ...spots[idx], name, lat, lng, image, video, desc, order };
   } else {
+  
     spots.push({ id: "spot-" + Date.now(), name, lat, lng, image, video, desc, order });
   }
 
-
+ 
   spots.sort((a, b) => (a.order || 999) - (b.order || 999));
 
   setStoredSpots(spots);
