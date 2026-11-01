@@ -209,12 +209,10 @@
       <div id="tab-add" class="flex-1 overflow-y-auto p-5 hidden space-y-4">
         <form id="spot-form" onsubmit="handleSaveSpot(event)" class="space-y-4">
           <input type="hidden" id="form-spot-id">
-
-<div class="form-group">
-  <label for="editDay">天數 / 播放順序</label>
-  <input type="number" id="editDay" min="1" class="form-control" placeholder="請輸入數字順序（如 1, 2, 3...）">
+<div style="margin-bottom: 12px;">
+  <label style="font-weight: bold; display: block; margin-bottom: 4px;">播放順序 / 天數</label>
+  <input type="number" id="form-order" min="1" placeholder="請輸入順序數字 (如 1, 2, 3)" style="width: 100%; padding: 6px;">
 </div>
-
           <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">景點名稱 *</label>
             <input type="text" id="form-name" required placeholder="例如: 太魯閣國家公園" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
@@ -826,40 +824,41 @@
     }
 
     function handleSaveSpot(event) {
-      event.preventDefault();
+  event.preventDefault();
 
-      const spotId = document.getElementById('form-spot-id').value;
-      const name = document.getElementById('form-name').value;
-      const lat = parseFloat(document.getElementById('form-lat').value);
-      const lng = parseFloat(document.getElementById('form-lng').value);
-      const image = document.getElementById('form-image').value;
-      const video = document.getElementById('form-video').value;
-      const desc = document.getElementById('form-desc').value;
-// 開啟編輯視窗時帶入天數資料
-document.getElementById('editDay').value = currentPlace.day || 1;
+  const spotId = document.getElementById('form-spot-id').value;
+  const name = document.getElementById('form-name').value;
+  const lat = parseFloat(document.getElementById('form-lat').value);
+  const lng = parseFloat(document.getElementById('form-lng').value);
+  const image = document.getElementById('form-image').value;
+  const video = document.getElementById('form-video').value;
+  const desc = document.getElementById('form-desc').value;
 
-// 儲存變更時更新 day 屬性並重新排序
-currentPlace.day = parseInt(document.getElementById('editDay').value, 10);
-places.sort((a, b) => a.day - b.day); // 依照天數重新排序
-renderPlaces(); // 重新渲染列表與地圖連線
-      if (spotId) {
-        const idx = spots.findIndex(s => s.id === spotId);
-        if (idx !== -1) spots[idx] = { ...spots[idx], name, lat, lng, image, video, desc };
-      } else {
-        spots.push({ id: "spot-" + Date.now(), name, lat, lng, image, video, desc });
-      }
+  const orderInput = document.getElementById('form-order');
+  const order = orderInput && orderInput.value ? parseInt(orderInput.value, 10) : 999;
 
-      setStoredSpots(spots);
-      renderSpotsList();
-      renderMapFeatures();
-      resetForm();
-      switchTab('list');
-    }
+  if (spotId) {
+    const idx = spots.findIndex(s => s.id === spotId);
+    if (idx !== -1) spots[idx] = { ...spots[idx], name, lat, lng, image, video, desc, order };
+  } else {
+    spots.push({ id: "spot-" + Date.now(), name, lat, lng, image, video, desc, order });
+  }
+
+
+  spots.sort((a, b) => (a.order || 999) - (b.order || 999));
+
+  setStoredSpots(spots);
+  renderSpotsList();
+  renderMapFeatures();
+  resetForm();
+  switchTab('list');
+}
 
     function editSpot(index) {
       const spot = spots[index];
       document.getElementById('form-spot-id').value = spot.id;
       document.getElementById('form-name').value = spot.name;
+document.getElementById('form-order').value = spot.order || '';
       document.getElementById('form-lat').value = spot.lat;
       document.getElementById('form-lng').value = spot.lng;
       document.getElementById('form-image').value = spot.image || '';
