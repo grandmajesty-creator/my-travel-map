@@ -115,7 +115,23 @@
     ::-webkit-scrollbar-track { background: #f1f5f9; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-  </style>
+ .place-card-item {
+      cursor: grab;
+      transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease;
+    }
+    .place-card-item:active {
+      cursor: grabbing;
+    }
+    .place-card-item.dragging {
+      opacity: 0.4;
+      transform: scale(0.98);
+      background-color: #f1f5f9;
+    }
+    .place-card-item.drag-over {
+      border-top: 3px solid #0ea5e9 !important;
+      background-color: #f0f9ff;
+    }
+ </style>
 </head>
 <body class="bg-slate-900 font-sans text-slate-800 antialiased overflow-hidden w-screen h-screen">
 
@@ -684,7 +700,13 @@
       }
 
       container.innerHTML = spots.map((spot, index) => `
-        <div class="group relative bg-slate-50 hover:bg-brand-50/60 border border-slate-200/80 rounded-2xl p-3 transition-all flex items-center gap-3 cursor-pointer shadow-sm" onclick="openSpotModal(${index})">
+<div class="group relative bg-slate-50 hover:bg-brand-50/60 border border-slate-200/80 rounded-2xl p-3 transition-all flex items-center gap-3 cursor-pointer shadow-sm place-card-item" 
+             onclick="openSpotModal(${index})"
+             draggable="true"
+             ondragstart="handleDragStart(event, ${index})"
+             ondragover="handleDragOver(event)"
+             ondragleave="handleDragLeave(event)"
+             ondrop="handleDrop(event, ${index})">
           <div class="w-8 h-8 rounded-xl bg-brand-500 text-white font-bold flex items-center justify-center text-xs shrink-0 shadow-sm">
             ${index + 1}
           </div>
@@ -880,6 +902,45 @@
       a.click();
       a.remove();
     }
-  </script>
+ // --- 新增：拖拽排序核心邏輯 ---
+    let draggedIndex = null;
+
+    function handleDragStart(e, index) {
+      draggedIndex = index;
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', index);
+      e.currentTarget.classList.add('dragging');
+    }
+
+    function handleDragOver(e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      e.currentTarget.classList.add('drag-over');
+    }
+
+    function handleDragLeave(e) {
+      e.currentTarget.classList.remove('drag-over');
+    }
+
+    function handleDrop(e, targetIndex) {
+      e.preventDefault();
+      e.currentTarget.classList.remove('drag-over');
+      document.querySelectorAll('.place-card-item').forEach(el => el.classList.remove('dragging'));
+
+      if (draggedIndex === null || draggedIndex === targetIndex) return;
+
+      // 1. 移動陣列內景點順序
+      const [movedSpot] = spots.splice(draggedIndex, 1);
+      spots.splice(targetIndex, 0, movedSpot);
+
+      // 2. 清空拖拽變數
+      draggedIndex = null;
+
+      // 3. 儲存並重新渲染畫面與地圖連線
+      setStoredSpots(spots);
+      renderSpotsList();
+      renderMapFeatures();
+    }
+ </script>
 </body>
 </html>
